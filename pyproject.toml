@@ -2,15 +2,13 @@
 name = "hrv-readiness-study"
 version = "0.1.0"
 description = "Study of HRV and readiness data"
-authors = [
-    {name = "Chandler Shortlidge",email = "chandlershortlidge@gmail.com"}
-]
-license = {text = "None"}
+authors = [{name = "Chandler Shortlidge", email = "chandlershortlidge@gmail.com"}]
 readme = "README.md"
-requires-python = "^3.12"
-dependencies = [
-]
+requires-python = ">=3.12,<3.14"
+dependencies = ["pandas (>=2.3.2,<3.0.0)", "numpy (>=2.3.3,<3.0.0)", "matplotlib (>=3.10.6,<4.0.0)", "scikit-learn (>=1.7.2,<2.0.0)", "jupyter (>=1.1.1,<2.0.0)", "pyarrow (>=21.0.0,<22.0.0)", "ipykernel (>=6.30.1,<7.0.0)"]
 
+[tool.poetry]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

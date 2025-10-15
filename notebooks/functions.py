@@ -1,3 +1,9 @@
+import glob
+
+def get_all_workout_files():
+    """Returns list of all workout file paths"""
+    return glob.glob('../data/raw/workouts/*.txt')
+
 def calculate_weighted_set_volume(line):
     """Takes a line like 'Set 1 : 40 kg x 9' and returns volume for that set"""
     parts = line.split(" x ")
@@ -17,3 +23,9 @@ def calculate_weighted_set_volume(line):
     set_volume = kilos * reps
     # calculates volume for the set
     return set_volume
+
+
+def open_workout_file(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    return lines

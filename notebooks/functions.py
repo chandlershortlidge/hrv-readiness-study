@@ -1,8 +1,15 @@
 import glob
-
+# glob is a Python module that finds files matching a pattern.
 def get_all_workout_files():
     """Returns list of all workout file paths"""
     return glob.glob('../data/raw/workouts/*.txt')
+# This says: "Find all files in the workouts folder that end with .txt"
+
+def open_workout_file(file_path):
+    """Opens a workout file and returns its lines as a list"""
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    return lines
 
 def calculate_weighted_set_volume(line):
     """Takes a line like 'Set 1 : 40 kg x 9' and returns volume for that set"""
@@ -25,7 +32,20 @@ def calculate_weighted_set_volume(line):
     return set_volume
 
 
-def open_workout_file(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
-    return lines
+# create a function to deal with bodyweight exercises
+def extract_bodyweight_volume(line, bodyweight):
+      """Extracts total volume for bodyweight exercises from workout file lines"""
+
+      if "reps" in line:  
+         # extracts any string starting with "Set" and containing "reps"
+         parts = line.split(" : ")
+         # splits string into "Set #" and "# kg" (a list)
+         reps_str = parts[1]
+            # assigns the second item in the list to reps_str
+         reps = reps_str.split(" ")[0]
+            # splits the string by " " to isolate the number of reps
+         reps = int(reps)
+            # converts reps into an interger for calculations
+         rep_volume = bodyweight * reps
+            # calculates volume for each rep based on bodyweight
+      return rep_volume

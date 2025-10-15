@@ -49,3 +49,18 @@ def extract_bodyweight_volume(line, bodyweight):
          rep_volume = bodyweight * reps
             # calculates volume for each rep based on bodyweight
       return rep_volume
+
+
+# build wrapper function to extract total volume from workout files
+def extract_volume(file_path, bodyweight=80):
+    """Extracts total volume from a workout file"""
+    lines = open_workout_file(file_path)
+    total_volume = 0
+    for line in lines:
+        if line.startswith("Set") and "kg" in line:
+            set_volume = calculate_weighted_set_volume(line)
+            total_volume += set_volume
+        elif line.startswith("Set") and "reps" in line:
+            set_volume = extract_bodyweight_volume(line, bodyweight)
+            total_volume += set_volume
+    return total_volume

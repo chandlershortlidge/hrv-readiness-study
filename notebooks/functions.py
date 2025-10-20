@@ -1,5 +1,8 @@
 import glob
 # glob is a Python module that finds files matching a pattern.
+import pandas as pd
+from pathlib import Path
+
 def get_all_workout_files():
     """Returns list of all workout file paths"""
     return glob.glob('../data/raw/workouts/*.txt')
@@ -64,3 +67,30 @@ def extract_volume(file_path, bodyweight=80):
             set_volume = extract_bodyweight_volume(line, bodyweight)
             total_volume += set_volume
     return total_volume
+
+
+
+def get_workout_name(file_path):
+    """Extracts workout name from first line of file"""
+    # open file
+    lines = open_workout_file(file_path)
+    # read first line and remove whitespace
+    workout_name = lines[0].strip()  
+    return workout_name
+
+def get_workout_date(file_path):
+    """Extracts workout date from file name"""
+    # get filename without path or extension: '26_09_25'
+    file_name = Path(file_path).stem
+    
+    # split to get parts: ['26', '09', '25']
+    parts = file_name.split('_')
+    day, month, year = parts[0], parts[1], parts[2]
+    
+    # convert 2-digit year to 4-digit: '25' -> '2025'
+    year = '20' + year
+    
+    # create date string in YYYY-MM-DD format
+    date_str = f'{year}-{month}-{day}'
+    
+    return date_str

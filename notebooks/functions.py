@@ -94,3 +94,108 @@ def get_workout_date(file_path):
     date_str = f'{year}-{month}-{day}'
     
     return date_str
+
+
+def extract_set_data(line):
+    """
+    Extracts weight, reps, and volume from a set line.
+    Returns a dictionary with the data.
+    """
+    parts = line.split(" x ")
+    sets = parts[0].split(":")
+    weight = sets[1].split(" ")
+    kilos = float(weight[1])
+    reps = int(parts[1].strip())
+    volume = kilos * reps
+    
+    return {
+        "weight": kilos,
+        "reps": reps,
+        "volume": volume
+    }
+
+
+def extract_exercise_sets(file_path, exercise_names, bodyweight=80):
+    """
+    Extracts individual sets for specific exercises from a workout file.
+    
+    Parameters:
+    - file_path: path to the workout file
+    - exercise_names: list of exercise names to track (e.g., ["Bench Press (Barbell)", "Squat (Barbell)"])
+    - bodyweight: your bodyweight for bodyweight exercises
+    
+    Returns:
+    - list of dictionaries, each containing date, exercise, set_number, weight, reps, volume
+    """
+    lines = open_workout_file(file_path)
+    workout_date = get_workout_date(file_path)
+    
+    all_sets = []
+    current_exercise = None
+    set_number = 0
+    
+    for line in lines:
+        line_stripped = line.strip()
+        
+        # Check if this line is one of our tracked exercises
+        if line_stripped in exercise_names:
+            current_exercise = line_stripped
+            set_number = 0
+            continue
+        
+        # If we're tracking this exercise and hit a set line
+        if current_exercise:
+            if line.startswith("Set") and "kg" in line:
+                set_number += 1
+                set_data = extract_set_data(line)
+                all_sets.append({
+                    "date": workout_date,
+                    "exercise": current_exercise,
+                    "set_number": set_number,
+                    "weight": set_data["weight"],
+                    "reps": set_data["reps"],
+                    "volume": set_data["volume"]
+                })
+            elif line.startswith("Set") and "reps" in line:
+                set_number += 1
+                parts = line.split(" : ")
+                reps = int(parts[1].split(" ")[0])
+                volume = bodyweight * reps
+                all_sets.append({
+                    "date": workout_date,
+                    "exercise": current_exercise,
+                    "set_number": set_number,
+                    "weight": bodyweight,
+                    "reps": reps,
+                    "volume": volume
+                })
+            elif line_stripped == "":
+                # Blank line means exercise is over
+                current_exercise = None
+    
+    return all_sets
+
+
+def build_exercise_dataframe(exercise_names, bodyweight=80):
+    """
+    Builds a complete dataframe of all sets for tracked exercises across all workout files.
+    
+    Parameters:
+    - exercise_names: list of exercise names to track
+    - bodyweight: your bodyweight for bodyweight exercises
+    
+    Returns:
+    - pandas DataFrame with columns: date, exercise, set_number, weight, reps, volume
+    """
+    workout_files = get_all_workout_files()
+    all_data = []
+    
+    for file in workout_files:
+        sets = extract_exercise_sets(file, exercise_names, bodyweight)
+        all_data.extend(sets)
+    
+    df = pd.DataFrame(all_data)
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.sort_values('date').reset_index(drop=True)
+    
+    return df
